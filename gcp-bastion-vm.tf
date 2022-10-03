@@ -28,9 +28,9 @@ resource "google_compute_subnetwork" "subnet" {
 #allow-ssh-bastion
 
 resource "google_compute_firewall" "rule1" {
-  project     = var.projectid
+ 
   name        = "allow-ssh-bastion"
-  network     = google_compute_subnetwork.subnet.name
+  network     = google_compute_network.vpc.name
   description = "Creates firewall rule targeting tagged instances"
 
   allow {
@@ -45,9 +45,9 @@ resource "google_compute_firewall" "rule1" {
 #allow-http-ingress
 
 resource "google_compute_firewall" "rule2" {
-  project     = var.projectid
-  name        = ""
-  network     = google_compute_subnetwork.subnet.name
+ 
+  name        = "allow-http-ingress"
+  network     = google_compute_network.vpc.name
   description = "Creates firewall rule targeting tagged instances"
 
   allow {
@@ -63,9 +63,9 @@ resource "google_compute_firewall" "rule2" {
 
 
 resource "google_compute_firewall" "rule3" {
-  project     = var.projectid
+ 
   name        = "allow-ssh-bastion-flipkart"
-  network     = google_compute_subnetwork.subnet.name
+  network     = google_compute_network.vpc.name
   description = "Creates firewall rule targeting tagged instances"
 
   allow {
