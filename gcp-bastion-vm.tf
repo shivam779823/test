@@ -30,7 +30,7 @@ resource "google_compute_subnetwork" "subnet" {
 resource "google_compute_firewall" "rule1" {
  
   name        = "allow-ssh-bastion"
-  network     = google_compute_subnetwork.subnet.name
+  network     = google_compute_network.vpc.name
   description = "Creates firewall rule targeting tagged instances"
 
   allow {
@@ -47,7 +47,7 @@ resource "google_compute_firewall" "rule1" {
 resource "google_compute_firewall" "rule2" {
  
   name        = "allow-http-ingress"
-  network     = google_compute_subnetwork.subnet.name
+  network     = google_compute_network.vpc.name
   description = "Creates firewall rule targeting tagged instances"
 
   allow {
@@ -65,7 +65,7 @@ resource "google_compute_firewall" "rule2" {
 resource "google_compute_firewall" "rule3" {
  
   name        = "allow-ssh-bastion-flipkart"
-  network     = google_compute_subnetwork.subnet.name
+  network     = google_compute_network.vpc.name
   description = "Creates firewall rule targeting tagged instances"
 
   allow {
@@ -100,7 +100,7 @@ resource "google_compute_instance" "bastion" {
   }
 
   network_interface {
-    network = google_compute_subnetwork.subnet.name
+    network = google_compute_network.vpc.name
 
     
   }
@@ -135,7 +135,7 @@ resource "google_compute_instance" "flipkart" {
   }
 
   network_interface {
-    network = google_compute_subnetwork.subnet.name
+    network = google_compute_network.vpc.name
 
     access_config {
       // Ephemeral public IP
