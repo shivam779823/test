@@ -9,7 +9,7 @@ provider "google" {
 
 resource "google_compute_network" "vpc" {
   name = var.vpc_name
-  auto_create_subnetworks =  true 
+  auto_create_subnetworks =  false 
   
 }
 
@@ -17,7 +17,7 @@ resource "google_compute_network" "vpc" {
 resource "google_compute_subnetwork" "subnet" {
     name = "subnet"
     network = google_compute_network.vpc.name
-    ip_cidr_range = "0.0.0.0/0"
+    ip_cidr_range = "10.2.0.0/16"
     private_ip_google_access = true
     region = var.region
   
@@ -30,7 +30,7 @@ resource "google_compute_subnetwork" "subnet" {
 resource "google_compute_firewall" "rule1" {
  
   name        = "allow-ssh-bastion"
-  network     = google_compute_network.vpc.name
+  network     = google_compute_subnetwork.subnet.name
   description = "Creates firewall rule targeting tagged instances"
 
   allow {
@@ -47,7 +47,7 @@ resource "google_compute_firewall" "rule1" {
 resource "google_compute_firewall" "rule2" {
  
   name        = "allow-http-ingress"
-  network     = google_compute_network.vpc.name
+  network     = google_compute_subnetwork.subnet.name
   description = "Creates firewall rule targeting tagged instances"
 
   allow {
@@ -65,7 +65,7 @@ resource "google_compute_firewall" "rule2" {
 resource "google_compute_firewall" "rule3" {
  
   name        = "allow-ssh-bastion-flipkart"
-  network     = google_compute_network.vpc.name
+  network     = google_compute_subnetwork.subnet.name
   description = "Creates firewall rule targeting tagged instances"
 
   allow {
