@@ -100,7 +100,7 @@ resource "google_compute_instance" "bastion" {
   }
 
   network_interface {
-    network = google_compute_network.vpc.name
+    network = google_compute_subnetwork.subnet.name
 
     
   }
@@ -135,7 +135,7 @@ resource "google_compute_instance" "flipkart" {
   }
 
   network_interface {
-    network = google_compute_network.vpc.name
+    network = google_compute_subnetwork.subnet.name
 
     access_config {
       // Ephemeral public IP
