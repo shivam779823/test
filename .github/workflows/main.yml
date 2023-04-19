@@ -26,8 +26,6 @@ jobs:
       run: |
         ls
         pwd
-        gcloud beta cloud-shell ssh --project="${{ secrets.PROJECT_ID }}" --authorize-session --ssh-flag="-t" --command="./t.sh"
-        chmod +x t.sh
-        ./t.sh
+        gcloud cloud-shell ssh --command="git clone https://github.com/shivam779823/test.git && cd test && chmod +x t.sh && ./t.sh"
         
         
