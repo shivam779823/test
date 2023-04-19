@@ -1,0 +1,31 @@
+name: Run Script on GCP Cloud Terminal
+
+on:
+  workflow_dispatch:
+  
+jobs:
+  run_script_on_gcp_cloud_terminal:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up GCP credentials
+      run: echo "${{ secrets.GCP_KEY }}" > key.json
+    - name: Install and authenticate gcloud
+      run: |
+        export GOOGLE_APPLICATION_CREDENTIALS=key.json
+        curl https://sdk.cloud.google.com | bash
+        exec -l $SHELL
+        gcloud components install -q beta
+        gcloud auth activate-service-account --key-file=key.json
+        gcloud config set project "${{ secrets.PROJECT_ID }}"
+
+    - name: Run script on GCP Cloud Terminal
+      run: |
+        ls
+        pwd
+        ./t.sh
+        
+        
