@@ -1,14 +1,16 @@
-#!/bin/bash
-
-set +x
-
-echo "hello"
-
-sudo apt-get install nginx -y
-
-
-echo "dfbkjd" >> t.txt
-
+// Copyright 2018 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package main
 
@@ -22,8 +24,6 @@ import (
 	"cloud.google.com/go/profiler"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -32,6 +32,8 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"google.golang.org/grpc"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 const (
@@ -51,31 +53,67 @@ var (
 		"CAD": true,
 		"JPY": true,
 		"GBP": true,
-		"TRY": true,
-	}
+		"TRY": true}
+)
 
+var (
 	requestCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "http_requests_total",
-			Help: "Total number of HTTP requests.",
+			Name: "http_request_count",
+			Help: "Total number of HTTP requests",
 		},
-		[]string{"method", "status", "path"},
+		[]string{"handler", "method"},
 	)
-
+	errorCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "http_error_count",
+			Help: "Total number of HTTP errors",
+		},
+		[]string{"handler", "method"},
+	)
 	requestDuration = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name:    "http_request_duration_seconds",
-			Help:    "HTTP request duration in seconds.",
-			Buckets: []float64{0.1, 0.5, 1, 2, 5, 10},
+			Help:    "Histogram of HTTP request duration",
+			Buckets: prometheus.ExponentialBuckets(0.001, 2, 10), // Customize the buckets as needed
 		},
-		[]string{"method", "status", "path"},
+		[]string{"handler", "method"},
 	)
 )
+
 
 type ctxKeySessionID struct{}
 
 type frontendServer struct {
-	// Existing code...
+	productCatalogSvcAddr string
+	productCatalogSvcConn *grpc.ClientConn
+
+	currencySvcAddr string
+	currencySvcConn *grpc.ClientConn
+
+	cartSvcAddr string
+	cartSvcConn *grpc.ClientConn
+
+	recommendationSvcAddr string
+	recommendationSvcConn *grpc.ClientConn
+
+	checkoutSvcAddr string
+	checkoutSvcConn *grpc.ClientConn
+
+	shippingSvcAddr string
+	shippingSvcConn *grpc.ClientConn
+
+	adSvcAddr string
+	adSvcConn *grpc.ClientConn
+
+	collectorAddr string
+	collectorConn *grpc.ClientConn
+}
+
+func init() {
+	prometheus.MustRegister(requestCount)
+	prometheus.MustRegister(errorCount)
+	prometheus.MustRegister(requestDuration)
 }
 
 func main() {
@@ -97,10 +135,6 @@ func main() {
 	otel.SetTextMapPropagator(
 		propagation.NewCompositeTextMapPropagator(
 			propagation.TraceContext{}, propagation.Baggage{}))
-
-	// Register Prometheus metrics
-	prometheus.MustRegister(requestCount)
-	prometheus.MustRegister(requestDuration)
 
 	if os.Getenv("ENABLE_TRACING") == "1" {
 		log.Info("Tracing enabled.")
@@ -149,25 +183,77 @@ func main() {
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 	r.HandleFunc("/robots.txt", func(w http.ResponseWriter, _ *http.Request) { fmt.Fprint(w, "User-agent: *\nDisallow: /") })
 	r.HandleFunc("/_healthz", func(w http.ResponseWriter, _ *http.Request) { fmt.Fprint(w, "ok") })
+	r.Handle("/metrics", promhttp.Handler())
 
 	var handler http.Handler = r
 	handler = &logHandler{log: log, next: handler}     // add logging
 	handler = ensureSessionID(handler)                 // add session ID
 	handler = otelhttp.NewHandler(handler, "frontend") // add OTel tracing
 
-	// Wrap the handler with instrumentation to track request count, status, latency, and path
-	handler = promhttp.InstrumentHandlerCounter(requestCount,
-		promhttp.InstrumentHandlerDuration(requestDuration,
-			promhttp.InstrumentHandlerPath("", handler),
-		),
-	)
-
-	r.Handle("/metrics", promhttp.Handler())
-
 	log.Infof("starting server on " + addr + ":" + srvPort)
 	log.Fatal(http.ListenAndServe(addr+":"+srvPort, handler))
 }
+func initStats(log logrus.FieldLogger) {
+	// TODO(arbrown) Implement OpenTelemtry stats
+}
 
-// Existing functions...
+func initTracing(log logrus.FieldLogger, ctx context.Context, svc *frontendServer) (*sdktrace.TracerProvider, error) {
+	mustMapEnv(&svc.collectorAddr, "COLLECTOR_SERVICE_ADDR")
+	mustConnGRPC(ctx, &svc.collectorConn, svc.collectorAddr)
+	exporter, err := otlptracegrpc.New(
+		ctx,
+		otlptracegrpc.WithGRPCConn(svc.collectorConn))
+	if err != nil {
+		log.Warnf("warn: Failed to create trace exporter: %v", err)
+	}
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exporter),
+		sdktrace.WithSampler(sdktrace.AlwaysSample()))
+	otel.SetTracerProvider(tp)
 
+	return tp, err
+}
 
+func initProfiling(log logrus.FieldLogger, service, version string) {
+	// TODO(ahmetb) this method is duplicated in other microservices using Go
+	// since they are not sharing packages.
+	for i := 1; i <= 3; i++ {
+		log = log.WithField("retry", i)
+		if err := profiler.Start(profiler.Config{
+			Service:        service,
+			ServiceVersion: version,
+			// ProjectID must be set if not running on GCP.
+			// ProjectID: "my-project",
+		}); err != nil {
+			log.Warnf("warn: failed to start profiler: %+v", err)
+		} else {
+			log.Info("started Stackdriver profiler")
+			return
+		}
+		d := time.Second * 10 * time.Duration(i)
+		log.Debugf("sleeping %v to retry initializing Stackdriver profiler", d)
+		time.Sleep(d)
+	}
+	log.Warn("warning: could not initialize Stackdriver profiler after retrying, giving up")
+}
+
+func mustMapEnv(target *string, envKey string) {
+	v := os.Getenv(envKey)
+	if v == "" {
+		panic(fmt.Sprintf("environment variable %q not set", envKey))
+	}
+	*target = v
+}
+
+func mustConnGRPC(ctx context.Context, conn **grpc.ClientConn, addr string) {
+	var err error
+	ctx, cancel := context.WithTimeout(ctx, time.Second*3)
+	defer cancel()
+	*conn, err = grpc.DialContext(ctx, addr,
+		grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()),
+		grpc.WithStreamInterceptor(otelgrpc.StreamClientInterceptor()))
+	if err != nil {
+		panic(errors.Wrapf(err, "grpc: failed to connect %s", addr))
+	}
+}
