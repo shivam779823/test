@@ -257,3 +257,43 @@ func mustConnGRPC(ctx context.Context, conn **grpc.ClientConn, addr string) {
 		panic(errors.Wrapf(err, "grpc: failed to connect %s", addr))
 	}
 }
+
+
+
+
+vault auth enable -path=test jwt
+
+vault write auth/test/config \
+  oidc_discovery_url="https://token.actions.githubusercontent.com" \
+  bound_issuer="https://token.actions.githubusercontent.com"
+
+
+
+vault write auth/test/role/test-role - <<EOF
+{
+   "role_type": "jwt",
+   "user_claim": "workflow",
+   "bound_subject": "",
+   "bound_audiences": "https://github.com/shivam779823",
+   "bound_claims_type": "glob",
+   "bound_claims": {"sub": ["repo:shivam779823/project-strategy:ref:refs/heads/main"]},
+   "policies": "test-policy",
+   "ttl": "1h"
+   }
+EOF
+
+
+
+
+vault secrets enable -path=test/ kv
+vault kv put test/sa_key GOOGLE=@123
+
+
+
+
+vault policy write test-policy - << EOF
+path "test/sa_key" {
+  capabilities = ["read"]
+}
+EOF
+
