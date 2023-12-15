@@ -1,0 +1,22 @@
+
+name: ArgoCD CI Pipeline 
+on:
+  workflow_dispatch:
+env:     
+  IMAGE: mywebsite
+  DOCKERHUB_USERNAME: shiva9921 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9",]
+
+    steps:
+      - name: code Checkout
+        uses: actions/checkout@v3
+      - name : test
+        run: |
+          echo "${ github.GITHUB_ACTOR }" 
+           
