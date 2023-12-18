@@ -21,14 +21,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: change path
+        run : | 
+            cd ..
+      - name: Checkout code
+        uses: actions/checkout@v2
         with:
            repository: shivam779823/dustbin
            ref: feature-branch
-          
-
+               
       - name: git clone
         run: |
-          git clone https://github.com/shivam779823/dustbin.git
           cd dustbin
           git init
       - name: Set up Git
