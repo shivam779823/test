@@ -33,7 +33,7 @@ jobs:
       - name: run
         run : |
           touch test.txt
-          echo "hello this from src"
+          echo "hello this from src" >> test.txt
           
       - name: Checkout destination code
         uses: actions/checkout@v3
