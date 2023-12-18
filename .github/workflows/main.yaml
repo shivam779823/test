@@ -30,6 +30,11 @@ jobs:
         with:
           ref: main
 
+      - name: run
+        run : |
+          touch test.txt
+          echo "hello this from src"
+          
       - name: Checkout destination code
         uses: actions/checkout@v3
         with:
@@ -49,8 +54,8 @@ jobs:
       - name: Make changes
         working-directory: dest 
         run: |
-          touch test.txt
-          echo "hl" >> test.txt
+          cd test
+          mv test.txt ./dest
 
       - name: Commit changes
         working-directory: dest 
