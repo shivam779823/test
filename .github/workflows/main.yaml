@@ -50,6 +50,7 @@ jobs:
         working-directory: dest 
         run: |
           touch test.txt
+          echo "hl" >> test.txt
 
       - name: Commit changes
         working-directory: dest 
