@@ -17,6 +17,9 @@ jobs:
       pull-requests: write
       security-events: write
       repository-projects: write
+      checks: write
+      deployments: write
+      packages: write
       
     steps:
       - name: Checkout code
@@ -25,6 +28,8 @@ jobs:
       - name: change path
         run : | 
             cd ..
+            ls
+            pwd
       - name: Checkout code
         uses: actions/checkout@v2
         with:
@@ -33,6 +38,7 @@ jobs:
                
       - name: git clone
         run: |
+          pwd
           ls
           git init
       - name: Set up Git
