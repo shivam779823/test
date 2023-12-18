@@ -22,14 +22,14 @@ jobs:
       packages: write
       
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      # - name: Checkout code
+      #   uses: actions/checkout@v2
 
-      - name: change path
-        run : | 
-            cd ..
-            ls
-            pwd
+      # - name: change path
+      #   run : | 
+      #       cd ..
+      #       ls
+      #       pwd
       - name: Checkout code
         uses: actions/checkout@v2
         with:
@@ -58,7 +58,7 @@ jobs:
 
       - name: Push changes
         run: |
-          git push origin main:${{ github.actor }}/main
+          git push origin main
 
       # - name: Create Pull Request
       #   uses: peter-evans/create-pull-request@v3
