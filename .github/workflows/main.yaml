@@ -33,7 +33,7 @@ jobs:
                
       - name: git clone
         run: |
-          cd dustbin
+          ls
           git init
       - name: Set up Git
         run: |
