@@ -53,13 +53,12 @@ jobs:
 
       - name: Commit changes
         run: |
-          git checkout -b feature-branch
           git add .
           git commit -m "Automated changes"
 
       - name: Push changes
         run: |
-          git push origin feature-branch
+          git push origin main:${{ github.actor }}/main
 
       # - name: Create Pull Request
       #   uses: peter-evans/create-pull-request@v3
