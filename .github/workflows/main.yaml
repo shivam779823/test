@@ -22,41 +22,43 @@ jobs:
       packages: write
       
     steps:
-      # - name: Checkout code
-      #   uses: actions/checkout@v2
-
-      # - name: change path
-      #   run : | 
-      #       cd ..
-      #       ls
-      #       pwd
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
-           repository: shivam779823/dustbin
-           ref: main
+          path: 'src'
+          ref: 'main'
+          persist-credentials: false
                
-      - name: git clone
-        run: |
-          pwd
-          ls
-          git init
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+            path: 'dest'
+            persist-credentials: true
+            repository: shivam779823/dustbin
+            token: ${{ secrets.API_TOKEN_GITHUB }}
+            ref: main
+            fetch-depth: 0
+               
       - name: Set up Git
+        working-directory: dest 
         run: |
           git config user.name "${{ env.GITHUB_USER_NAME }}"
           git config user.email "${{ env.GITHUB_USER_EMAIL }}"
 
 
       - name: Make changes
+        working-directory: dest 
         run: |
           touch test.txt
 
       - name: Commit changes
+        working-directory: dest 
         run: |
           git add .
           git commit -m "Automated changes"
 
       - name: Push changes
+        working-directory: dest 
         run: |
           git push origin main
 
