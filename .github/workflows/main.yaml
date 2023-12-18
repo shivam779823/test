@@ -21,6 +21,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+           repository: shivam779823/dustbin
+           ref: feature-branch
+          
 
       - name: git clone
         run: |
@@ -32,9 +36,6 @@ jobs:
           git config user.name "${{ env.GITHUB_USER_NAME }}"
           git config user.email "${{ env.GITHUB_USER_EMAIL }}"
 
-      - name: Create branch
-        run: |
-          git checkout -b feature-branch
 
       - name: Make changes
         run: |
