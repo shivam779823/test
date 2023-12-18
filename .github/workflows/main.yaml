@@ -54,6 +54,7 @@ jobs:
       - name: Make changes
         working-directory: dest 
         run: |
+          cd ..
           cd test
           mv test.txt ./dest
 
