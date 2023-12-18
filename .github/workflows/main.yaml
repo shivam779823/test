@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v2
         with:
            repository: shivam779823/dustbin
-           ref: feature-branch
+           ref: main
                
       - name: git clone
         run: |
@@ -47,6 +47,7 @@ jobs:
 
       - name: Commit changes
         run: |
+          git checkout -b feature-branch
           git add .
           git commit -m "Automated changes"
 
