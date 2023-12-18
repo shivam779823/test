@@ -17,8 +17,8 @@ jobs:
       pull-requests: write
       security-events: write
     steps:
-      # - name: Checkout code
-      #   uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: git clone
         run: |
