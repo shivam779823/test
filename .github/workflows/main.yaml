@@ -1,0 +1,50 @@
+name: Raise Pull Request
+env:
+  GITHUB_USER_NAME: 'shivam779823'
+  GITHUB_USER_EMAIL: 'mshivam110@gmail.com'
+on:
+  push:
+    branches:
+      - main  # Change this to the branch you want to trigger the workflow on
+
+jobs:
+  raise_pull_request:
+    runs-on: ubuntu-latest
+
+    steps:
+      # - name: Checkout code
+      #   uses: actions/checkout@v2
+
+      - name: git clone
+        run: |
+          git clone https://github.com/shivam779823/DevSecOps-CICD.git
+      - name: Set up Git
+        run: |
+          git config user.name "${{ env.GITHUB_USER_NAME }}"
+          git config user.email "${{ env.GITHUB_USER_EMAIL }}"
+
+      - name: Create branch
+        run: |
+          git checkout -b feature-branch
+
+      - name: Make changes
+        run: |
+          touch test.txt
+
+      - name: Commit changes
+        run: |
+          git add .
+          git commit -m "Automated changes"
+
+      - name: Push changes
+        run: |
+          git push origin feature-branch
+
+      # - name: Create Pull Request
+      #   uses: peter-evans/create-pull-request@v3
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     branch: feature-branch
+      #     title: Automated Pull Request
+      #     body: Automated changes made by GitHub Actions
+      #     labels: automated
