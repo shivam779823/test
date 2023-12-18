@@ -16,14 +16,16 @@ jobs:
       id-token: write
       pull-requests: write
       security-events: write
+      repository-projects: write
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: git clone
         run: |
-          git clone https://github.com/shivam779823/DevSecOps-CICD.git
-          cd DevSecOps-CICD
+          git clone https://github.com/shivam779823/dustbin.git
+          cd dustbin
           git init
       - name: Set up Git
         run: |
