@@ -29,13 +29,6 @@ jobs:
         uses: actions/checkout@v1
         with:
           ref: main
-          persist-credentials: false
-      
-      - name: make changes to test
-        run: |
-          ls
-          OK=${{ github.GITHUB_RUN_NUMBER }}
-          echo "hello this from src $OK" >> test.txt
 
       - name: Checkout destination code
         uses: actions/checkout@v2
@@ -45,17 +38,16 @@ jobs:
           repository: shivam779823/dustbin
           token: ${{ secrets.API_TOKEN_GITHUB }}
           ref: test
-          fetch-depth: 0      
-      
-      - name: run
-        working-directory: dest 
-        run : |
-          cd ..
-          if [ -f text.txt ]; then mv text.txt ./dest ; fi
-          cd dest
-          OK=${{ github.GITHUB_RUN_NUMBER }}
-          echo "hello this from src $OK" >> test.txt
+          fetch-depth: 0   
           
+      - name: make change
+        working-directory: dest
+        run: |
+          cd ..
+          T="$(cat test.txt)"
+          cd dest
+          echo $T >> test.txt
+
       - name: Set up Git
         working-directory: dest 
         run: |
