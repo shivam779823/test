@@ -1,74 +1,74 @@
-name: Raise Pull Request
+# name: Raise Pull Request
 
-env:
-  GITHUB_USER_NAME: 'shivam779823'
-  GITHUB_USER_EMAIL: 'mshivam110@gmail.com'
+# env:
+#   GITHUB_USER_NAME: 'shivam779823'
+#   GITHUB_USER_EMAIL: 'mshivam110@gmail.com'
 
-on:
-  push:
-    branches:
-      - main  # Change this to the branch you want to trigger the workflow on,
-  workflow_dispatch:
+# on:
+#   push:
+#     branches:
+#       - main  # Change this to the branch you want to trigger the workflow on,
+#   workflow_dispatch:
     
-jobs:
-  raise_pull_request:
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: write
-      id-token: write
-      pull-requests: write
-      security-events: write
-      repository-projects: write
-      checks: write
-      deployments: write
-      packages: write
+# jobs:
+#   raise_pull_request:
+#     runs-on: ubuntu-latest
+#     permissions:
+#       actions: write
+#       contents: write
+#       id-token: write
+#       pull-requests: write
+#       security-events: write
+#       repository-projects: write
+#       checks: write
+#       deployments: write
+#       packages: write
 
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v1
-        with:
-          ref: main
-          persist-credentials: false
+#     steps:
+#       - name: Checkout source code
+#         uses: actions/checkout@v1
+#         with:
+#           ref: main
+#           persist-credentials: false
       
-      - name: Checkout destination code
-        uses: actions/checkout@v2
-        with:
-          path: 'dest'
-          persist-credentials: true
-          repository: shivam779823/dustbin
-          token: ${{ secrets.API_TOKEN_GITHUB }}
-          ref: test
-          fetch-depth: 0      
+#       - name: Checkout destination code
+#         uses: actions/checkout@v2
+#         with:
+#           path: 'dest'
+#           persist-credentials: true
+#           repository: shivam779823/dustbin
+#           token: ${{ secrets.API_TOKEN_GITHUB }}
+#           ref: test
+#           fetch-depth: 0      
       
-      - name: run
-        working-directory: dest 
-        run : |
-          touch test.txt
-          echo "hello this from src ${{ github.GITHUB_RUN_ATTEMPT }}" >> test.txt
+#       - name: run
+#         working-directory: dest 
+#         run : |
+#           touch test.txt
+#           echo "hello this from src ${{ github.GITHUB_RUN_ATTEMPT }}" >> test.txt
           
 
 
-      - name: Set up Git
-        working-directory: dest 
-        run: |
-          git remote set-url origin https://${{ github.GITHUB_ACTOR }}:${{ secrets.API_TOKEN_GITHUB }}@github.com/shivam779823/dustbin.git 
-          git config user.name "${{ env.GITHUB_USER_NAME }}"
-          git config user.email "${{ env.GITHUB_USER_EMAIL }}"
+#       - name: Set up Git
+#         working-directory: dest 
+#         run: |
+#           git remote set-url origin https://${{ github.GITHUB_ACTOR }}:${{ secrets.API_TOKEN_GITHUB }}@github.com/shivam779823/dustbin.git 
+#           git config user.name "${{ env.GITHUB_USER_NAME }}"
+#           git config user.email "${{ env.GITHUB_USER_EMAIL }}"
 
-      - name: Make changes
-        working-directory: dest 
-        run: |
-          echo "hello this from src ${{ github.GITHUB_RUN_ATTEMPT }}" >> test.txt
+#       - name: Make changes
+#         working-directory: dest 
+#         run: |
+#           echo "hello this from src ${{ github.GITHUB_RUN_ATTEMPT }}" >> test.txt
 
-      - name: Commit changes
-        working-directory: dest 
-        run: |
-          git checkout test
-          git add .
-          git commit -m "Automated changes"
+#       - name: Commit changes
+#         working-directory: dest 
+#         run: |
+#           git checkout test
+#           git add .
+#           git commit -m "Automated changes"
 
-      - name: Push changes
-        working-directory: dest 
-        run: |
-          git push origin test
+#       - name: Push changes
+#         working-directory: dest 
+#         run: |
+#           git push origin test
