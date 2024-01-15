@@ -31,6 +31,12 @@ jobs:
           ref: main
           persist-credentials: false
       
+      - name: make changes to test
+        run: |
+          ls
+          OK=${{ github.GITHUB_RUN_NUMBER }}
+          echo "hello this from src $OK" >> test.txt
+
       - name: Checkout destination code
         uses: actions/checkout@v2
         with:
@@ -44,11 +50,12 @@ jobs:
       - name: run
         working-directory: dest 
         run : |
+          cd ..
+          if [ -f text.txt ]; then mv text.txt ./dest ; fi
+          cd dest
           OK=${{ github.GITHUB_RUN_NUMBER }}
           echo "hello this from src $OK" >> test.txt
           
-
-
       - name: Set up Git
         working-directory: dest 
         run: |
