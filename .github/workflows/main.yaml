@@ -44,6 +44,7 @@ jobs:
         working-directory: dest
         run: |
           cd ..
+          ls
           T="$(cat test.txt)"
           cd dest
           echo $T >> test.txt
