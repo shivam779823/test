@@ -26,28 +26,32 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v1
         with:
           ref: main
-
-      - name: run
-        run : |
-          touch test.txt
-          echo "hello this from src" >> test.txt
-          
+          persist-credentials: false
+      
       - name: Checkout destination code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v1
         with:
           path: 'dest'
           persist-credentials: true
           repository: shivam779823/dustbin
           token: ${{ secrets.API_TOKEN_GITHUB }}
-          ref: main
-          fetch-depth: 0
+          ref: test
+          fetch-depth: 0      
+      
+      - name: run
+        run : |
+          touch test.txt
+          echo "hello this from src ${{ github.GITHUB_RUN_ATTEMPT }}" >> test.txt
+          
+
 
       - name: Set up Git
         working-directory: dest 
         run: |
+          git remote set-url origin https://${{ github.GITHUB_ACTOR }}:${{ secrets.API_TOKEN_GITHUB }}@github.com/shivam779823/dustbin.git 
           git config user.name "${{ env.GITHUB_USER_NAME }}"
           git config user.email "${{ env.GITHUB_USER_EMAIL }}"
 
@@ -56,14 +60,16 @@ jobs:
         run: |
           cd ..
           mv test.txt ./dest
+          echo "hello this from src ${{ github.GITHUB_RUN_ATTEMPT }}" >> test.txt
 
       - name: Commit changes
         working-directory: dest 
         run: |
+          git checkout test
           git add .
           git commit -m "Automated changes"
 
       - name: Push changes
         working-directory: dest 
         run: |
-          git push origin main
+          git push origin test
