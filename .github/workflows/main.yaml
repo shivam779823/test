@@ -45,7 +45,8 @@ jobs:
         working-directory: dest 
         run : |
           touch test.txt
-          echo hello this from src ${{ github.GITHUB_RUN_NUMBER }} >> test.txt
+          OK=${{ github.GITHUB_RUN_NUMBER }}
+          echo "hello this from src $OK" >> test.txt
           
 
 
