@@ -32,7 +32,7 @@ jobs:
           persist-credentials: false
       
       - name: Checkout destination code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
         with:
           path: 'dest'
           persist-credentials: true
@@ -42,6 +42,7 @@ jobs:
           fetch-depth: 0      
       
       - name: run
+        working-directory: dest 
         run : |
           touch test.txt
           echo "hello this from src ${{ github.GITHUB_RUN_ATTEMPT }}" >> test.txt
