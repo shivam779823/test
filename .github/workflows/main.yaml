@@ -28,7 +28,7 @@ jobs:
         #  Get the last changed file from the list
         # LAST_FILE=$(echo "$CHANGED_FILES" | tail -n 1)
 
-        echo $CHANGED_FILE
+        echo $CHANGED_FILES
 
    
 
