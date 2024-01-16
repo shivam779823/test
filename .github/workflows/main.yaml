@@ -17,17 +17,16 @@ jobs:
     - name: Find last changed file
       id: find_file
       run: |
-        git remote set-url origin https://${{ github.GITHUB_ACTOR }}:${{ secrets.API_TOKEN_GITHUB }}@github.com/shivam779823/test.git 
-        git config user.name "${{ env.GITHUB_USER_NAME }}"
-        git config user.email "${{ env.GITHUB_USER_EMAIL }}"
+        # git remote set-url origin https://${{ github.GITHUB_ACTOR }}:${{ secrets.API_TOKEN_GITHUB }}@github.com/shivam779823/test.git 
+        # git config user.name "${{ env.GITHUB_USER_NAME }}"
+        # git config user.email "${{ env.GITHUB_USER_EMAIL }}"
         # Get the list of changed files in the pull request
-        CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+        CHANGED_FILES=$(git diff --name-only origin/${{ github.head_ref }} | grep '\.txt$' | tail -n 1 )
 
-        # Get the last changed file from the list
-        LAST_FILE=$(echo "$CHANGED_FILES" | tail -n 1)
+        #  Get the last changed file from the list
+        # LAST_FILE=$(echo "$CHANGED_FILES" | tail -n 1)
 
-        # Store the last changed file in the output variable
-        echo "LASTFILE=${LAST_FILE}" >> $GITHUB_ENV
+        echo $CHANGED_FILE
 
    
 
