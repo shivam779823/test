@@ -46,9 +46,15 @@ jobs:
       - name: Get last changed file
         id: lastChangedFile
         run: |
-            LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.txt$' | head -n 1)
-            echo "Last changed file: $LAST_CHANGED_FILE"
-            echo "$LAST_CHANGED_FILE"
+          LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.txt$' | tail -n 1)
+          echo "Last changed file: $LAST_CHANGED_FILE"
+          echo "::set-output name=lastChangedFile::$LAST_CHANGED_FILE"
+      - name: Debug git diff
+        run: |
+          git fetch origin ${{ github.event.before }}:${{ github.event.before }}
+          git fetch origin ${{ github.sha }}:${{ github.sha }}
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }}
+
             
       - name: Use the output
         run: |
