@@ -17,6 +17,9 @@ jobs:
     - name: Find last changed file
       id: find_file
       run: |
+        git remote set-url origin https://${{ github.GITHUB_ACTOR }}:${{ secrets.API_TOKEN_GITHUB }}@github.com/shivam779823/test.git 
+        git config user.name "${{ env.GITHUB_USER_NAME }}"
+        git config user.email "${{ env.GITHUB_USER_EMAIL }}"
         # Get the list of changed files in the pull request
         CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
 
