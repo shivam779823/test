@@ -9,8 +9,12 @@ on:
     branches:
       - main # Change this to the branch you want to trigger the workflow on,
   pull_request:
-    paths:
-      - 'main/**'
+    branches:
+      - main
+    types:
+      - reopened
+      - opened
+      - synchronize 
   workflow_dispatch:
 
 jobs:
@@ -33,6 +37,24 @@ jobs:
         with:
           ref: main
 
+      # - name: Get previous commit SHA
+      #   id: get_prev_commit
+      #   run: |
+      #     PREVIOUS_COMMIT=$(git rev-parse HEAD^1)
+      #     echo "Previous commit SHA: $PREVIOUS_COMMIT"
+      #     echo "::set-output name=previous_commit::$PREVIOUS_COMMIT"
+      #     echo $PREVIOUS_COMMIT
+
+      - name: Get changed files
+        id: changedFiles
+        run: |
+          echo "CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} )" >> $GITHUB_OUTPUT
+          echo "Changed files: $CHANGED_FILES"
+          echo "::set-output name=changedFiles::$CHANGED_FILES"
+
+          
+
+
       - name: Checkout destination code
         uses: actions/checkout@v2
         with:
@@ -41,23 +63,21 @@ jobs:
           repository: shivam779823/dustbin
           token: ${{ secrets.API_TOKEN_GITHUB }}
           ref: test
-          fetch-depth: 0   
+          fetch-depth: 0   #grep '\.txt$' | tail -n 1)
+  
 
       - name: Get last changed file
-        id: lastChangedFile
-        run: |
-          LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep '\.txt$' | tail -n 1)
-          echo "Last changed file: $LAST_CHANGED_FILE"
-          echo "::set-output name=lastChangedFile::$LAST_CHANGED_FILE"
-      - name: Debug git diff
-        run: |
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }}
 
-            
-      - name: Use the output
+        id: changed-files
         run: |
-            echo "The last changed file is ${{ steps.lastChangedFile.outputs.lastChangedFile }}"   
-        
+          if ${{ github.event_name == 'pull_request' }};
+          then
+            echo "LAST_CHANGED_FILE=$(git diff --name-only -r HEAD^1 HEAD | xargs )" >> $GITHUB_OUTPUT
+          else
+            echo "LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | xargs)" >> $GITHUB_OUTPUT
+            echo "Last changed file: $LAST_CHANGED_FILE"
+            # LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.txt$' | tail -n 1)
+          fi
       - name: make change
         working-directory: dest
         run: |
@@ -73,15 +93,15 @@ jobs:
           git remote set-url origin https://${{ github.GITHUB_ACTOR }}:${{ secrets.API_TOKEN_GITHUB }}@github.com/shivam779823/dustbin.git 
           git config user.name "${{ env.GITHUB_USER_NAME }}"
           git config user.email "${{ env.GITHUB_USER_EMAIL }}"
-      - name: Commit changes
-        working-directory: dest 
-        run: |
-          git checkout test
-          git add .
-          git commit -m "Automated changes"
-      - name: Push changes
-        working-directory: dest 
-        run: |
-          git push origin test
+      # - name: Commit changes
+      #   working-directory: dest 
+      #   run: |
+      #     git checkout test
+      #     git add .
+      #     git commit -m "Automated changes"
+      # - name: Push changes
+      #   working-directory: dest 
+      #   run: |
+      #     git push origin test
 
 
