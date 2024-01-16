@@ -7,7 +7,10 @@ env:
 on:
   push:
     branches:
-      - final # Change this to the branch you want to trigger the workflow on,
+      - main # Change this to the branch you want to trigger the workflow on,
+  pull_request:
+    paths:
+      - 'main/**'
   workflow_dispatch:
     
 jobs:
@@ -39,7 +42,18 @@ jobs:
           token: ${{ secrets.API_TOKEN_GITHUB }}
           ref: test
           fetch-depth: 0   
-          
+
+      - name: Get last changed file
+        id: lastChangedFile
+        run: |
+            LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.txt$' | head -n 1)
+            echo "Last changed file: $LAST_CHANGED_FILE"
+            echo "::set-output name=lastChangedFile::$LAST_CHANGED_FILE"
+            
+      - name: Use the output
+        run: |
+            echo "The last changed file is ${{ steps.lastChangedFile.outputs.lastChangedFile }}"   
+        
       - name: make change
         working-directory: dest
         run: |
