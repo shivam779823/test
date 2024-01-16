@@ -48,7 +48,7 @@ jobs:
         run: |
             LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.txt$' | head -n 1)
             echo "Last changed file: $LAST_CHANGED_FILE"
-            echo "::set-output name=lastChangedFile::$LAST_CHANGED_FILE"
+            echo "$LAST_CHANGED_FILE"
             
       - name: Use the output
         run: |
