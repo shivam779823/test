@@ -45,20 +45,19 @@ jobs:
           repository: shivam779823/dustbin
           token: ${{ secrets.API_TOKEN_GITHUB }}
           ref: test
-          fetch-depth: 0   
+          fetch-depth: 0   #grep '\.txt$' | tail -n 1)
+  
 
       - name: Get last changed file
-        id: lastChangedFile
+        id: changed-files
         run: |
-          LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep '\.txt$' | tail -n 1)
+          if ${{ github.event_name == 'pull_request' }};
+          then
+            echo "LAST_CHANGED_FILE=$(git diff --name-only -r HEAD^1 HEAD | xargs )" >> $GITHUB_OUTPUT
+          else
+            echo "LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | xargs)" >> $GITHUB_OUTPUT
+          # LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.txt$' | tail -n 1)
           echo "Last changed file: $LAST_CHANGED_FILE"
-          echo "::set-output name=lastChangedFile::$LAST_CHANGED_FILE"
-    
-
-            
-      - name: Use the output
-        run: |
-            echo "The last changed file is ${{ steps.lastChangedFile.outputs.lastChangedFile }}"   
         
       - name: make change
         working-directory: dest
