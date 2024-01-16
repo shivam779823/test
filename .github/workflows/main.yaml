@@ -61,9 +61,10 @@ jobs:
       - name: make change
         working-directory: dest
         run: |
+          rm test.txt
           cd ..
           ls
-          T="$(cat test.txt)"
+          T="$(echo $LAST_CHANGED_FILE )"
           cd dest
           echo $T >> test.txt
       - name: Set up Git
