@@ -18,7 +18,7 @@ jobs:
       id: find_file
       run: |
         # Get the list of changed files in the pull request
-        CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} | grep '\.txt$' | tail -n 1 )
+        CHANGED_FILES=$(git diff --name-only ${{ github.head_ref }} | grep '\.txt$' | tail -n 1 )
 
         #  Get the last changed file from the list
         # LAST_FILE=$(echo "$CHANGED_FILES" | tail -n 1)
