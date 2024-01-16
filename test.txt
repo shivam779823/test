@@ -4,4 +4,5 @@ kopa
 .
 
 test
+o
 
