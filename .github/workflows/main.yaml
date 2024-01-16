@@ -1,106 +1,138 @@
-name: Raise Pull Request
-
-env:
-  GITHUB_USER_NAME: 'shivam779823'
-  GITHUB_USER_EMAIL: 'mshivam110@gmail.com'
+name: Find Last Changed File
 
 on:
-  push:
-    branches:
-      - main # Change this to the branch you want to trigger the workflow on,
   pull_request:
-    branches:
-      - main
     types:
-      - reopened
       - opened
-      - synchronize 
-  workflow_dispatch:
+      - synchronize
 
 jobs:
-  raise_pull_request:
+  find_last_changed_file:
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: write
-      id-token: write
-      pull-requests: write
-      security-events: write
-      repository-projects: write
-      checks: write
-      deployments: write
-      packages: write
 
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v1
-        with:
-          ref: main
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      # - name: Get previous commit SHA
-      #   id: get_prev_commit
-      #   run: |
-      #     PREVIOUS_COMMIT=$(git rev-parse HEAD^1)
-      #     echo "Previous commit SHA: $PREVIOUS_COMMIT"
-      #     echo "::set-output name=previous_commit::$PREVIOUS_COMMIT"
-      #     echo $PREVIOUS_COMMIT
+    - name: Find last changed file
+      id: find_file
+      run: |
+        # Get the list of changed files in the pull request
+        CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
 
-      - name: Get changed files
-        id: changedFiles
-        run: |
-          echo "CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} )" >> $GITHUB_OUTPUT
-          echo "Changed files: $CHANGED_FILES"
-          echo "::set-output name=changedFiles::$CHANGED_FILES"
+        # Get the last changed file from the list
+        LAST_FILE=$(echo "$CHANGED_FILES" | tail -n 1)
+
+        # Store the last changed file in the output variable
+        echo "LASTFILE=${LAST_FILE}" >> $GITHUB_ENV
+
+   
+
+
+
+# name: Raise Pull Request
+
+# env:
+#   GITHUB_USER_NAME: 'shivam779823'
+#   GITHUB_USER_EMAIL: 'mshivam110@gmail.com'
+
+# on:
+#   push:
+#     branches:
+#       - main # Change this to the branch you want to trigger the workflow on,
+#   pull_request:
+#     branches:
+#       - main
+#     types:
+#       - reopened
+#       - opened
+#       - synchronize 
+#   workflow_dispatch:
+
+# jobs:
+#   raise_pull_request:
+#     runs-on: ubuntu-latest
+#     permissions:
+#       actions: write
+#       contents: write
+#       id-token: write
+#       pull-requests: write
+#       security-events: write
+#       repository-projects: write
+#       checks: write
+#       deployments: write
+#       packages: write
+
+#     steps:
+#       - name: Checkout source code
+#         uses: actions/checkout@v1
+#         with:
+#           ref: main
+
+#       # - name: Get previous commit SHA
+#       #   id: get_prev_commit
+#       #   run: |
+#       #     PREVIOUS_COMMIT=$(git rev-parse HEAD^1)
+#       #     echo "Previous commit SHA: $PREVIOUS_COMMIT"
+#       #     echo "::set-output name=previous_commit::$PREVIOUS_COMMIT"
+#       #     echo $PREVIOUS_COMMIT
+
+#       - name: Get changed files
+#         id: changedFiles
+#         run: |
+#           echo "CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} )" >> $GITHUB_OUTPUT
+#           echo "Changed files: $CHANGED_FILES"
+#           echo "::set-output name=changedFiles::$CHANGED_FILES"
 
           
 
 
-      - name: Checkout destination code
-        uses: actions/checkout@v2
-        with:
-          path: 'dest'
-          persist-credentials: true
-          repository: shivam779823/dustbin
-          token: ${{ secrets.API_TOKEN_GITHUB }}
-          ref: test
-          fetch-depth: 0   #grep '\.txt$' | tail -n 1)
+#       - name: Checkout destination code
+#         uses: actions/checkout@v2
+#         with:
+#           path: 'dest'
+#           persist-credentials: true
+#           repository: shivam779823/dustbin
+#           token: ${{ secrets.API_TOKEN_GITHUB }}
+#           ref: test
+#           fetch-depth: 0   #grep '\.txt$' | tail -n 1)
   
 
-      - name: Get last changed file
-        id: changed-files
-        run: |
-          if ${{ github.event_name == 'pull_request' }};
-          then
-            echo "LAST_CHANGED_FILE=$(git diff --name-only -r HEAD^1 HEAD | xargs )" >> $GITHUB_OUTPUT
-          else
-            echo "LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | xargs)" >> $GITHUB_OUTPUT
-            echo "Last changed file: $LAST_CHANGED_FILE"
-            # LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.txt$' | tail -n 1)
-          fi
-      - name: make change
-        working-directory: dest
-        run: |
-          rm test.txt
-          cd ..
-          ls
-          T="$(echo $LAST_CHANGED_FILE )"
-          cd dest
-          echo $T >> test.txt
-      - name: Set up Git
-        working-directory: dest 
-        run: |
-          git remote set-url origin https://${{ github.GITHUB_ACTOR }}:${{ secrets.API_TOKEN_GITHUB }}@github.com/shivam779823/dustbin.git 
-          git config user.name "${{ env.GITHUB_USER_NAME }}"
-          git config user.email "${{ env.GITHUB_USER_EMAIL }}"
-      # - name: Commit changes
-      #   working-directory: dest 
-      #   run: |
-      #     git checkout test
-      #     git add .
-      #     git commit -m "Automated changes"
-      # - name: Push changes
-      #   working-directory: dest 
-      #   run: |
-      #     git push origin test
+#       - name: Get last changed file
+#         id: changed-files
+#         run: |
+#           if ${{ github.event_name == 'pull_request' }};
+#           then
+#             echo "LAST_CHANGED_FILE=$(git diff --name-only -r HEAD^1 HEAD | xargs )" >> $GITHUB_OUTPUT
+#           else
+#             echo "LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | xargs)" >> $GITHUB_OUTPUT
+#             echo "Last changed file: $LAST_CHANGED_FILE"
+#             # LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.txt$' | tail -n 1)
+#           fi
+#       - name: make change
+#         working-directory: dest
+#         run: |
+#           rm test.txt
+#           cd ..
+#           ls
+#           T="$(echo $LAST_CHANGED_FILE )"
+#           cd dest
+#           echo $T >> test.txt
+#       - name: Set up Git
+#         working-directory: dest 
+#         run: |
+#           git remote set-url origin https://${{ github.GITHUB_ACTOR }}:${{ secrets.API_TOKEN_GITHUB }}@github.com/shivam779823/dustbin.git 
+#           git config user.name "${{ env.GITHUB_USER_NAME }}"
+#           git config user.email "${{ env.GITHUB_USER_EMAIL }}"
+#       # - name: Commit changes
+#       #   working-directory: dest 
+#       #   run: |
+#       #     git checkout test
+#       #     git add .
+#       #     git commit -m "Automated changes"
+#       # - name: Push changes
+#       #   working-directory: dest 
+#       #   run: |
+#       #     git push origin test
 
 
