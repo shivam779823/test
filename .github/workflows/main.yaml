@@ -12,7 +12,7 @@ on:
     branches:
       - main
     types:
-      - reopned
+      - reopened
       - opened
       - synchronize 
   workflow_dispatch:
@@ -50,12 +50,10 @@ jobs:
       - name: Get last changed file
         id: lastChangedFile
         run: |
-          LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.txt$' | tail -n 1)
+          LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep '\.txt$' | tail -n 1)
           echo "Last changed file: $LAST_CHANGED_FILE"
           echo "::set-output name=lastChangedFile::$LAST_CHANGED_FILE"
-      - name: Debug git diff
-        run: |
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }}
+    
 
             
       - name: Use the output
