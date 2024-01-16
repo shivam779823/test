@@ -50,6 +50,7 @@ jobs:
       - name: Get last changed file
         id: lastChangedFile
         run: |
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }}
           LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep '\.txt$' | tail -n 1)
           echo "Last changed file: $LAST_CHANGED_FILE"
           echo "::set-output name=lastChangedFile::$LAST_CHANGED_FILE"
