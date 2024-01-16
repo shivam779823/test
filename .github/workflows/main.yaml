@@ -9,8 +9,12 @@ on:
     branches:
       - main # Change this to the branch you want to trigger the workflow on,
   pull_request:
-    paths:
-      - 'main/**'
+    branches:
+      - main
+    types:
+      - reopned
+      - opened
+      - synchronize 
   workflow_dispatch:
 
 jobs:
