@@ -4,3 +4,4 @@ kopa
 lasthai
 yoka
 t
+e
