@@ -47,14 +47,19 @@ jobs:
           ref: test
           fetch-depth: 0   
 
-      - name: Get last changed file
-        id: lastChangedFile
-        run: |
-          LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep '\.txt$' | tail -n 1)
-          echo "Last changed file: $LAST_CHANGED_FILE"
-          echo "::set-output name=lastChangedFile::$LAST_CHANGED_FILE"
+      # - name: Get last changed file
+      #   id: lastChangedFile
+      #   run: |
+      #     LAST_CHANGED_FILE=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep '\.txt$' | tail -n 1)
+      #     echo "Last changed file: $LAST_CHANGED_FILE"
+      #     echo "::set-output name=lastChangedFile::$LAST_CHANGED_FILE"
     
-
+      - name: Get last commit file name
+        id: lastCommitFile
+        run: |
+          LAST_COMMIT_FILE=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.number }}/files" | jq -r '.[-1].filename')
+          echo "Last commit file: $LAST_COMMIT_FILE"
+          echo "::set-output name=lastCommitFile::$LAST_COMMIT_FILE"
             
       - name: Use the output
         run: |
