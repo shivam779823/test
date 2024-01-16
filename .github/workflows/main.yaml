@@ -37,6 +37,13 @@ jobs:
         with:
           ref: main
 
+      - name: Get previous commit SHA
+        id: get_prev_commit
+        run: |
+          PREVIOUS_COMMIT=$(git rev-parse HEAD^1)
+          echo "Previous commit SHA: $PREVIOUS_COMMIT"
+          echo "::set-output name=previous_commit::$PREVIOUS_COMMIT"
+
       - name: Checkout destination code
         uses: actions/checkout@v2
         with:
