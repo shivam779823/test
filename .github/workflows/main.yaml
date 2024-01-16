@@ -16,8 +16,16 @@ jobs:
 
     - name: Fetch branch from remote
       run: git fetch origin last:refs/remotes/origin/${{ github.head_ref }}
+
     - name: Find last changed file
       id: find_file
+      run: |
+        # Debug output
+        git log --oneline -n 5
+        git status
+
+    - name: Find last changed file
+      id: find_file1
       run: |
         # Get the list of changed files in the pull request
         CHANGED_FILES=$(git diff --name-only origin/${{ github.head_ref }} | grep '\.txt$' | tail -n 1 )
