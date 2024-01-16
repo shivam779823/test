@@ -17,6 +17,18 @@ jobs:
     - name: Fetch branch from remote
       run: git fetch origin last:refs/remotes/origin/${{ github.head_ref }}
 
+
+    - name: Find last changed file
+      id: find
+      run: |
+        # Get the most recent commit in the pull request branch
+        MOST_RECENT_COMMIT=$(git log --format="%H" -n 1 origin/${{ github.head_ref }})
+
+        # Get the list of changed files in the most recent commit
+        CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $MOST_RECENT_COMMIT | grep '\.txt$' | tail -n 1)
+
+        # Display the last changed file
+        echo "Most recent change: $CHANGED_FILES"
     - name: Find last changed file
       id: find_file
       run: |
