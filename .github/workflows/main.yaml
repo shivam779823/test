@@ -14,6 +14,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Fetch branch from remote
+      run: git fetch origin last:refs/remotes/origin/${{ github.head_ref }}
     - name: Find last changed file
       id: find_file
       run: |
