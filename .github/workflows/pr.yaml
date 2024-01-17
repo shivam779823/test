@@ -86,6 +86,7 @@ jobs:
           ls
           cd dest
           mv $TFVARS  /$GITHUB_WORKSPACE/pr
+          cd ..
           cd pr
           diff $CHANGED_FILES $TFVARS
           
