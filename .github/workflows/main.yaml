@@ -38,8 +38,8 @@ jobs:
           ref:
             main
 
-      # - name: Fetch branch from remote
-      #   run: git fetch origin last:refs/remotes/origin/${{ github.head_ref }}
+      - name: Fetch branch from remote
+        run: git fetch origin last:refs/remotes/origin/${{ github.head_ref }}
   
   
       - name: Find last changed file
