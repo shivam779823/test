@@ -53,7 +53,10 @@ jobs:
   
           # Display the last changed file
           echo "Most recent change: $CHANGED_FILES"
-          
+          echo "$CHANGED_FILES"
+          if [[ "$CHANGED_FILES" == "test.txt" ]] ; then TFVARS="requirements.txt" ; fi
+          if [[ "$CHANGED_FILES" == "dev.txt" ]] ; then TFVARS="dev-requirements.txt" ; fi
+          echo "$TFVARS"
 
       - name: Checkout destination code
         uses: actions/checkout@v2
@@ -66,10 +69,7 @@ jobs:
           fetch-depth: 0   
       - name: if tfvars selection
         run: | 
-          echo $CHANGED_FILES
-          if [[ "$CHANGED_FILES" == "test.txt" ]] ; then TFVARS="requirements.txt" ; fi
-          if [[ "$CHANGED_FILES" == "dev.txt" ]] ; then TFVARS="dev-requirements.txt" ; fi
-          echo $TFVARS
+          
       - name: make change
         working-directory: dest
         run: |
