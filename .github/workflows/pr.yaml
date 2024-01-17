@@ -82,7 +82,14 @@ jobs:
       - name:  cat pr
         working-directory: pr
         run: |
-          cat $TFVARS
+          cd ..
+          ls
+          cd dest
+          mv $TFVARS  /$GITHUB_WORKSPACE/pr
+          cd pr
+          diff $CHANGED_FILES $TFVARS
+          
+         
           
         
 
