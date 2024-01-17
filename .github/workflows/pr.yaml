@@ -69,6 +69,20 @@ jobs:
           ls
           echo $TFVARS
       
-
-
+      - name: pull branch chekout  ${{ github.head_ref }}
+        uses: actions/checkout@v2
+        with:
+          path: 'pr'
+          persist-credentials: true
+          # repository: shivam779823/dustbin
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0 
+          
+      - name:  cat pr
+        working-directory: pr
+        run: |
+          cat $TFVARS
+          
+        
 
