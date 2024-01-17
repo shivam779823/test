@@ -92,7 +92,7 @@ jobs:
           echo $TFVARS
           T="$(echo $TFVARS )"
           cd dest
-          $(echo $T) >> $TFVARS
+          echo "$T" >> "$TFVARS"
       
       - name: Set up Git
         working-directory: dest 
