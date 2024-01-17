@@ -82,6 +82,7 @@ jobs:
           then 
             export TFVARS=requirements.txt ;
           fi
+          echo "TFVARS=$TFVARS" >> $GITHUB_ENV
           echo $check
           echo $TFVARS
       - name: make change
