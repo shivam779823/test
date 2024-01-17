@@ -5,15 +5,51 @@ on:
     branches:
       - main
 
+
 jobs:
-  compare_files:
+  raise_pull_request:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+      id-token: write
+      pull-requests: write
+      security-events: write
+      repository-projects: write
+      checks: write
+      deployments: write
+      packages: write
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
         with:  
           fetch-depth: 0
+
+      - name: Fetch branch from remote
+        run: git fetch origin ${{ github.head_ref }}:refs/remotes/origin/${{ github.head_ref }}
+  
+  
+      - name: Find last changed file
+        id: find
+        run: |
+          # Get the most recent commit in the pull request branch
+          MOST_RECENT_COMMIT=$(git log --format="%H" -n 1 origin/${{ github.head_ref }})
+  
+          # Get the list of changed files in the most recent commit
+          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $MOST_RECENT_COMMIT | grep '\.txt$' | tail -n 1)
+  
+          # Display the last changed file
+          echo "Most recent change: $CHANGED_FILES"
+          echo "$CHANGED_FILES"
+          if [[ "$CHANGED_FILES" == "test.txt" ]] ; 
+          then 
+            export TFVARS="requirements.txt" ;
+          fi
+          if [[ "$CHANGED_FILES" == "dev.txt" ]] ; then export TFVARS="dev-requirements.txt" ; fi
+          echo "TFVARS=$TFVARS" >> $GITHUB_ENV
+          echo "$TFVARS"
+          echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
 
       - name: Checkout destination code
         uses: actions/checkout@v2
@@ -23,35 +59,16 @@ jobs:
           repository: shivam779823/dustbin
           token: ${{ secrets.API_TOKEN_GITHUB }}
           ref: test
-          fetch-depth: 0    
-
-      - name: Find last changed files
-        id: find
+          fetch-depth: 0   
+  
+      - name: make change
+        working-directory: dest
         run: |
-          echo "hi"
-          # Get the list of changed files in the pull request
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'test.txt')
-          echo $CHANGED_FILES
-          # Display the changed files
-          echo "Changed files: $CHANGED_FILES"
-          echo "::set-output name=changed_files::$CHANGED_FILES"
+          cat $TFVARS
+          cd ..
+          ls
+          echo $TFVARS
+      
 
-      - name: Compare files
-        run: |
-          CHANGED_FILES="${{ steps.find.outputs.changed_files }}"
-          
-          # Check if user.txt is among the changed files
-          if echo "$CHANGED_FILES" | grep -q 'user.txt'; then
-            # Compare user.txt with locals.tfvars in the destination repository
-            diff_result=$(diff user.txt dest/locals.tfvars || true)
-            
-            # Check if there are differences
-            if [ -n "$diff_result" ]; then
-              echo "Files are different. Diff result:"
-              echo "$diff_result"
-            else
-              echo "Files are identical."
-            fi
-          else
-            echo "user.txt not among the changed files."
-          fi
+
+
