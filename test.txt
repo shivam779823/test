@@ -2,10 +2,8 @@ shivam
 tom
 kopa
 .
-tiba
 
+test
+lf
 
-t
-hama
-t
-4
+o
