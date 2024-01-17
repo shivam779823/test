@@ -78,7 +78,7 @@ jobs:
       - name: if tfvars selection
         run: |
           export check=${{ inputs.environment }} 
-          if [[ "$check" == "test.txt" ]] ; then export TFVARS="requirements.txt" ; fi
+          if [[ "$check" == "dev" ]] ; then export TFVARS="requirements.txt" ; fi
           echo $check
       - name: make change
         working-directory: dest
