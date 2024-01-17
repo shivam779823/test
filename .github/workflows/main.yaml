@@ -80,6 +80,7 @@ jobs:
           export check=${{ inputs.environment }} 
           if [[ "$check" == "dev" ]] ; then export TFVARS="requirements.txt" ; fi
           echo $check
+          echo $TFVARS
       - name: make change
         working-directory: dest
         run: |
@@ -88,7 +89,7 @@ jobs:
           echo $TFVARS
           T="$(echo $TFVARS )"
           cd dest
-          echo $T >> $TFVARS
+          $(echo $T) >> $TFVARS
       
       - name: Set up Git
         working-directory: dest 
