@@ -28,9 +28,10 @@ jobs:
       - name: Find last changed files
         id: find
         run: |
+          echo "hi"
           # Get the list of changed files in the pull request
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'user.txt')
-          
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'test.txt')
+          echo $CHANGED_FILES
           # Display the changed files
           echo "Changed files: $CHANGED_FILES"
           echo "::set-output name=changed_files::$CHANGED_FILES"
