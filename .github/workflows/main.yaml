@@ -35,11 +35,10 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v2
         with:  
-          ref:
-            main
+          fetch-depth: 0
 
-      - name: Fetch branch from remote
-        run: git fetch origin last:refs/remotes/origin/${{ github.head_ref }}
+      # - name: Fetch branch from remote
+      #   run: git fetch origin last:refs/remotes/origin/${{ github.head_ref }}
   
   
       - name: Find last changed file
