@@ -1,0 +1,96 @@
+name: Compare Files on Pull Request
+
+on:
+  pull_request:
+    branches:
+      - main
+
+
+jobs:
+  raise_pull_request:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+      id-token: write
+      pull-requests: write
+      security-events: write
+      repository-projects: write
+      checks: write
+      deployments: write
+      packages: write
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        with:  
+          fetch-depth: 0
+
+      - name: Fetch branch from remote
+        run: git fetch origin ${{ github.head_ref }}:refs/remotes/origin/${{ github.head_ref }}
+  
+  
+      - name: Find last changed file
+        id: find
+        run: |
+          # Get the most recent commit in the pull request branch
+          MOST_RECENT_COMMIT=$(git log --format="%H" -n 1 origin/${{ github.head_ref }})
+  
+          # Get the list of changed files in the most recent commit
+          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $MOST_RECENT_COMMIT | grep '\.txt$' | tail -n 1)
+  
+          # Display the last changed file
+          echo "Most recent change: $CHANGED_FILES"
+          echo "$CHANGED_FILES"
+          if [[ "$CHANGED_FILES" == "test.txt" ]] ; 
+          then 
+            export TFVARS="requirements.txt" ;
+          fi
+          if [[ "$CHANGED_FILES" == "dev.txt" ]] ; then export TFVARS="dev-requirements.txt" ; fi
+          echo "TFVARS=$TFVARS" >> $GITHUB_ENV
+          echo "$TFVARS"
+          echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
+
+      - name: Checkout destination code
+        uses: actions/checkout@v2
+        with:
+          path: 'dest'
+          persist-credentials: true
+          repository: shivam779823/dustbin
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          ref: test
+          fetch-depth: 0   
+  
+      - name: make change
+        working-directory: dest
+        run: |
+          cat $TFVARS
+          cd ..
+          ls
+          echo $TFVARS
+      
+      - name: pull branch chekout  ${{ github.head_ref }}
+        uses: actions/checkout@v2
+        with:
+          path: 'pr'
+          persist-credentials: true
+          # repository: shivam779823/dustbin
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0 
+          
+      - name:  cat pr
+        working-directory: pr
+        run: |
+          cd ..
+          ls
+          cd dest
+          mv $TFVARS  /$GITHUB_WORKSPACE/pr
+          cd ..
+          cd pr
+          diff $CHANGED_FILES $TFVARS
+          
+         
+          
+        
+
