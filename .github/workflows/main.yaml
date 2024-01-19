@@ -10,7 +10,8 @@ on:
     types:
       - closed
     paths: 
-      - 'test.txt'   
+      - 'test.txt'
+      - 'dev.txt'
  
     
   workflow_dispatch:
