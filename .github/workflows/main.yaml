@@ -5,18 +5,15 @@ env:
   GITHUB_USER_EMAIL: 'mshivam110@gmail.com'
 
 on:
-  push:
-    branches:
-      - main # Change this to the branch you want to trigger the workflow on,
-  pull_request:
-    branches:
-      - main
-    types:
-      - reopened
-      - opened
-      - synchronize 
-  workflow_dispatch:
 
+  pull_request:
+    types:
+      - closed
+    paths: 
+      - 'test.txt'   
+ 
+    
+  workflow_dispatch:
 jobs:
   raise_pull_request:
     runs-on: ubuntu-latest
@@ -39,7 +36,7 @@ jobs:
             main
 
       - name: Fetch branch from remote
-        run: git fetch origin last:refs/remotes/origin/${{ github.head_ref }}
+        run: git fetch origin ${{ github.head_ref }}:refs/remotes/origin/${{ github.head_ref }}
   
   
       - name: Find last changed file
