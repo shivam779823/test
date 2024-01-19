@@ -1,4 +1,4 @@
-name: Raise Pull Request
+name:  after merge deploy
 
 env:
   GITHUB_USER_NAME: 'shivam779823'
