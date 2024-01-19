@@ -1,4 +1,4 @@
-name: Raise Pull Request
+name:  after merge deploy
 
 env:
   GITHUB_USER_NAME: 'shivam779823'
@@ -63,7 +63,7 @@ jobs:
           fetch-depth: 0   
       - name: if tfvars selection
         run: | 
-          if [[ "$CHANGED_FILES" == "user.txt" ]] ; then TFVARS="requirements.txt" ; fi
+          if [[ "$CHANGED_FILES" == "test.txt" ]] ; then TFVARS="requirements.txt" ; fi
           if [[ "$CHANGED_FILES" == "dev.txt" ]] ; then TFVARS="dev-requirements.txt" ; fi
           echo $TFVARS
       - name: make change
