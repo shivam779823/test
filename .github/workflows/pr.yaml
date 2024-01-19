@@ -1,19 +1,11 @@
-name: Raise Pull Request
-
-env:
-  GITHUB_USER_NAME: 'shivam779823'
-  GITHUB_USER_EMAIL: 'mshivam110@gmail.com'
+name: Compare Files on Pull Request
 
 on:
-
   pull_request:
-    types:
-      - closed
-    paths: 
-      - 'test.txt'   
- 
-    
-  workflow_dispatch:
+    branches:
+      - main
+
+
 jobs:
   raise_pull_request:
     runs-on: ubuntu-latest
@@ -32,8 +24,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v2
         with:  
-          ref:
-            main
+          fetch-depth: 0
 
       - name: Fetch branch from remote
         run: git fetch origin ${{ github.head_ref }}:refs/remotes/origin/${{ github.head_ref }}
@@ -50,7 +41,15 @@ jobs:
   
           # Display the last changed file
           echo "Most recent change: $CHANGED_FILES"
-          
+          echo "$CHANGED_FILES"
+          if [[ "$CHANGED_FILES" == "test.txt" ]] ; 
+          then 
+            export TFVARS="requirements.txt" ;
+          fi
+          if [[ "$CHANGED_FILES" == "dev.txt" ]] ; then export TFVARS="dev-requirements.txt" ; fi
+          echo "TFVARS=$TFVARS" >> $GITHUB_ENV
+          echo "$TFVARS"
+          echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
 
       - name: Checkout destination code
         uses: actions/checkout@v2
@@ -61,40 +60,37 @@ jobs:
           token: ${{ secrets.API_TOKEN_GITHUB }}
           ref: test
           fetch-depth: 0   
-      - name: if tfvars selection
-        run: | 
-          if [[ "$CHANGED_FILES" == "user.txt" ]] ; then TFVARS="requirements.txt" ; fi
-          if [[ "$CHANGED_FILES" == "dev.txt" ]] ; then TFVARS="dev-requirements.txt" ; fi
-          echo $TFVARS
+  
       - name: make change
         working-directory: dest
         run: |
-          rm 
+          cat $TFVARS
           cd ..
           ls
-          T="$(echo $CHANGED_FILES )"
-          cd dest
-          echo $T >> $CHANGED_FILES
+          echo $TFVARS
       
-      - name: Set up Git
-        working-directory: dest 
+      - name: pull branch chekout  ${{ github.head_ref }}
+        uses: actions/checkout@v2
+        with:
+          path: 'pr'
+          persist-credentials: true
+          # repository: shivam779823/dustbin
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0 
+          
+      - name:  cat pr
+        working-directory: pr
         run: |
-          git remote set-url origin https://${{ github.GITHUB_ACTOR }}:${{ secrets.API_TOKEN_GITHUB }}@github.com/shivam779823/dustbin.git 
-          git config user.name "${{ env.GITHUB_USER_NAME }}"
-          git config user.email "${{ env.GITHUB_USER_EMAIL }}"
-      - name: Commit changes
-        working-directory: dest 
-        run: |
-          git checkout test
-          git add .
-          git commit -m "Automated changes"
-      - name: Push changes
-        working-directory: dest 
-        run: |
-          git push origin test
-
-
-
-
-
+          cd ..
+          ls
+          cd dest
+          mv $TFVARS  /$GITHUB_WORKSPACE/pr
+          cd ..
+          cd pr
+          diff $CHANGED_FILES $TFVARS
+          
+         
+          
+        
 
